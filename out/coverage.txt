@@ -1,0 +1,324 @@
+        - : 0  : Source:parser.c
+    ##### : 1  :  
+    ##### : 2  :  
+    ##### : 3  :  
+    ##### : 4  :  
+    ##### : 5  :  
+    ##### : 6  :  error {
+    ##### : 7  :      NoError,           
+    ##### : 8  :      PacketTooShort,    
+    ##### : 9  :      NoMatch,           
+    ##### : 10  :      StackOutOfBounds,  
+    ##### : 11  :      OverwritingHeader, 
+    ##### : 12  :      HeaderTooShort,    
+    ##### : 13  :      ParserTimeout      
+    ##### : 14  :  }
+    ##### : 15  :  
+    ##### : 16  :  extern packet_in {
+    ##### : 17  :      
+    ##### : 18  :      void extract<T>(out T hdr);
+    ##### : 19  :      
+    ##### : 20  :      void extract<T>(out T variableSizeHeader,
+    ##### : 21  :                      in bit<32> variableFieldSizeInBits);
+    ##### : 22  :      
+    ##### : 23  :      T lookahead<T>();
+    ##### : 24  :      
+    ##### : 25  :      void advance(in bit<32> sizeInBits);
+    ##### : 26  :      
+    ##### : 27  :      bit<32> length();
+    ##### : 28  :  }
+    ##### : 29  :  
+    ##### : 30  :  extern packet_out {
+    ##### : 31  :      void emit<T>(in T hdr);
+    ##### : 32  :      void emit<T>(in bool condition, in T data);
+    ##### : 33  :  }
+    ##### : 34  :  
+    ##### : 35  :  
+    ##### : 36  :  extern void verify(in bool check, in error toSignal);
+    ##### : 37  :  
+    ##### : 38  :  @name("NoAction")
+    ##### : 39  :  action NoAction() {}
+    ##### : 40  :  
+    ##### : 41  :  match_kind {
+    ##### : 42  :      exact,
+    ##### : 43  :      ternary,
+    ##### : 44  :      lpm
+    ##### : 45  :  }
+    ##### : 46  :  
+    ##### : 47  :  
+    ##### : 48  :  
+    ##### : 49  :  
+    ##### : 50  :  
+    ##### : 51  :  
+    ##### : 52  :  
+    ##### : 53  :  
+    ##### : 54  :  
+    ##### : 55  :  
+    ##### : 56  :  
+    ##### : 57  :  match_kind {
+    ##### : 58  :      range,
+    ##### : 59  :      
+    ##### : 60  :      selector
+    ##### : 61  :  }
+    ##### : 62  :  
+    ##### : 63  :  
+    1, 1, 1, 1, 1 : 64  :  @metadata @name("standard_metadata")
+    1, 1, 1, 1, 1 : 65  :  struct standard_metadata_t {
+    2, 2, 2, 1, 1, 1, 1, 1 : 66  :      bit<9>  ingress_port;
+    2, 2, 2, 1, 1, 1, 1, 1 : 67  :      bit<32> packet_length;
+    2, 2, 2, 1, 1, 1, 1, 1 : 68  :      bit<9>  egress_spec;
+    2, 2, 2, 1, 1, 1, 1, 1 : 69  :      bit<9>  egress_port;
+    2, 2, 2, 1, 1, 1, 1, 1 : 70  :      bit<32> egress_instance;
+    2, 2, 2, 1, 1, 1, 1, 1 : 71  :      bit<32> instance_type;
+    2, 2, 2, 1, 1, 1, 1, 1 : 72  :      bit<32>  clone_spec;
+    2, 2, 2, 1, 1, 1, 1, 1 : 73  :      bit<5> _padding;
+    1, 1, 1, 1, 1 : 74  :  }
+    ##### : 75  :  
+    ##### : 76  :  extern Checksum16 {
+    ##### : 77  :      Checksum16();
+    ##### : 78  :      bit<16> get<D>(in D data);
+    ##### : 79  :  }
+    ##### : 80  :  
+    ##### : 81  :  enum CounterType {
+    ##### : 82  :      packets,
+    ##### : 83  :      bytes,
+    ##### : 84  :      packets_and_bytes
+    ##### : 85  :  }
+    ##### : 86  :  
+    ##### : 87  :  extern counter {
+    ##### : 88  :      counter(bit<32> size, CounterType type);
+    ##### : 89  :      void count(in bit<32> index);
+    ##### : 90  :  }
+    ##### : 91  :  
+    ##### : 92  :  extern direct_counter {
+    ##### : 93  :      direct_counter(CounterType type);
+    ##### : 94  :  }
+    ##### : 95  :  
+    ##### : 96  :  extern meter {
+    ##### : 97  :      meter(bit<32> size, CounterType type);
+    ##### : 98  :      void execute_meter<T>(in bit<32> index, out T result);
+    ##### : 99  :  }
+    ##### : 100  :  
+    ##### : 101  :  extern direct_meter<T> {
+    ##### : 102  :      direct_meter(CounterType type);
+    ##### : 103  :      void read(out T result);
+    ##### : 104  :  }
+    ##### : 105  :  
+    ##### : 106  :  extern register<T> {
+    ##### : 107  :      register(bit<32> size);
+    ##### : 108  :      void read(out T result, in bit<32> index);
+    ##### : 109  :      void write(in bit<32> index, in T value);
+    ##### : 110  :  }
+    ##### : 111  :  
+    ##### : 112  :  
+    ##### : 113  :  extern action_profile {
+    ##### : 114  :      action_profile(bit<32> size);
+    ##### : 115  :  }
+    ##### : 116  :  
+    ##### : 117  :  
+    ##### : 118  :  extern void random(out bit<32> result, in bit<32> lo, in bit<32> hi);
+    ##### : 119  :  
+    ##### : 120  :  
+    ##### : 121  :  extern void digest<T>(in bit<32> receiver, in T data);
+    ##### : 122  :  
+    ##### : 123  :  enum HashAlgorithm {
+    ##### : 124  :      crc32,
+    ##### : 125  :      crc32_custom,
+    ##### : 126  :      crc16,
+    ##### : 127  :      crc16_custom,
+    ##### : 128  :      random,
+    ##### : 129  :      identity
+    ##### : 130  :  }
+    ##### : 131  :  
+    ##### : 132  :  extern void mark_to_drop();
+    ##### : 133  :  extern void hash<O, T, D, M>(out O result, in HashAlgorithm algo, in T base, in D data, in M max);
+    ##### : 134  :  
+    ##### : 135  :  extern action_selector {
+    ##### : 136  :      action_selector(HashAlgorithm algorithm, bit<32> size, bit<32> outputWidth);
+    ##### : 137  :  }
+    ##### : 138  :  
+    ##### : 139  :  enum CloneType {
+    ##### : 140  :      I2E,
+    ##### : 141  :      E2E
+    ##### : 142  :  }
+    ##### : 143  :  
+    ##### : 144  :  extern void resubmit<T>(in T data);
+    ##### : 145  :  extern void recirculate<T>(in T data);
+    ##### : 146  :  extern void clone(in CloneType type, in bit<32> session);
+    ##### : 147  :  extern void clone3<T>(in CloneType type, in bit<32> session, in T data);
+    ##### : 148  :  
+    ##### : 149  :  extern void truncate(in bit<32> length);
+    ##### : 150  :  
+    ##### : 151  :  
+    ##### : 152  :  
+    ##### : 153  :  
+    ##### : 154  :  
+    ##### : 155  :  
+    ##### : 156  :  
+    ##### : 157  :  parser Parser<H, M>(packet_in b,
+    ##### : 158  :                      out H parsedHdr,
+    ##### : 159  :                      inout M meta,
+    ##### : 160  :                      inout standard_metadata_t standard_metadata);
+    ##### : 161  :  control VerifyChecksum<H, M>(in H hdr,
+    ##### : 162  :                               inout M meta);
+    ##### : 163  :  control Ingress<H, M>(inout H hdr,
+    ##### : 164  :                        inout M meta,
+    ##### : 165  :                        inout standard_metadata_t standard_metadata);
+    ##### : 166  :  control Egress<H, M>(inout H hdr,
+    ##### : 167  :                       inout M meta,
+    ##### : 168  :                       inout standard_metadata_t standard_metadata);
+    ##### : 169  :  control ComputeChecksum<H, M>(inout H hdr,
+    ##### : 170  :                                inout M meta);
+    ##### : 171  :  control Deparser<H>(packet_out b, in H hdr);
+    ##### : 172  :  
+    ##### : 173  :  package V1Switch<H, M>(Parser<H, M> p,
+    ##### : 174  :                         VerifyChecksum<H, M> vr,
+    ##### : 175  :                         Ingress<H, M> ig,
+    ##### : 176  :                         Egress<H, M> eg,
+    ##### : 177  :                         ComputeChecksum<H, M> ck,
+    ##### : 178  :                         Deparser<H> dep
+    ##### : 179  :                         );
+    ##### : 180  :  
+    ##### : 181  :  
+    1, 1, 1, 1, 1 : 182  :  struct routing_metadata_t {
+    2, 2, 2, 1, 1, 1, 1, 1 : 183  :      bit<32> nhop_ipv4;
+    1, 1, 1, 1, 1 : 184  :  }
+    ##### : 185  :  
+    2, 2, 2 : 186  :  header ethernet_t {
+    2, 2, 2, 2, 2, 2 : 187  :      bit<48> dstAddr;
+    2, 2, 2, 2, 2, 2 : 188  :      bit<48> srcAddr;
+    2, 2, 2, 2, 2, 2 : 189  :      bit<16> etherType;
+    2, 2, 2 : 190  :  }
+    ##### : 191  :  
+    ##### : 192  :  header ipv4_t {
+    ##### : 193  :      bit<4>  version;
+    ##### : 194  :      bit<4>  ihl;
+    ##### : 195  :      bit<8>  diffserv;
+    ##### : 196  :      bit<16> totalLen;
+    ##### : 197  :      bit<16> identification;
+    ##### : 198  :      bit<3>  flags;
+    ##### : 199  :      bit<13> fragOffset;
+    ##### : 200  :      bit<8>  ttl;
+    ##### : 201  :      bit<8>  protocol;
+    ##### : 202  :      bit<16> hdrChecksum;
+    ##### : 203  :      bit<32> srcAddr;
+    ##### : 204  :      bit<32> dstAddr;
+    ##### : 205  :  }
+    ##### : 206  :  
+    ##### : 207  :  struct metadata {
+    ##### : 208  :      @name("routing_metadata") 
+    ##### : 209  :      routing_metadata_t routing_metadata;
+    ##### : 210  :  }
+    ##### : 211  :  
+    ##### : 212  :  struct headers {
+    ##### : 213  :      @name("ethernet") 
+    ##### : 214  :      ethernet_t ethernet;
+    ##### : 215  :      @name("ipv4") 
+    ##### : 216  :      ipv4_t     ipv4;
+    ##### : 217  :  }
+    ##### : 218  :  
+    ##### : 219  :  parser ParserImpl(packet_in packet, out headers hdr, inout metadata meta, inout standard_metadata_t standard_metadata) {
+    2, 2, 2 : 220  :      @name("parse_ethernet") state parse_ethernet {
+    2, 2, 2, 2, 2, 2 : 221  :          packet.extract(hdr.ethernet);
+    2, 2, 2, 2 : 222  :          transition select(hdr.ethernet.etherType) {
+    2, 2, 2, 2, 2, 2, 2 : 223  :              16w0x0800: parse_ipv4;
+    2, 2, 2, 2, 2 : 224  :              default: accept;
+    2, 2, 2, 2 : 225  :          }
+    2, 2, 2 : 226  :      }
+    ##### : 227  :      @name("parse_ipv4") state parse_ipv4 {
+    ##### : 228  :          packet.extract(hdr.ipv4);
+    ##### : 229  :          transition accept;
+    ##### : 230  :      }
+    ##### : 231  :      @name("start") state start {
+    2] : 232  :          transition parse_ethernet;
+    ##### : 233  :      }
+    ##### : 234  :  }
+    ##### : 235  :  
+    ##### : 236  :  control egress(inout headers hdr, inout metadata meta, inout standard_metadata_t standard_metadata) {
+    ##### : 237  :      @name("rewrite_mac") action rewrite_mac(bit<48> smac) {
+    ##### : 238  :          hdr.ethernet.srcAddr = smac;
+    ##### : 239  :      }
+    ##### : 240  :      @name("_drop") action _drop() {
+    ##### : 241  :          mark_to_drop();
+    ##### : 242  :      }
+    ##### : 243  :      @name("send_frame") table send_frame() {
+    ##### : 244  :          actions = {
+    ##### : 245  :              rewrite_mac;
+    ##### : 246  :              _drop;
+    ##### : 247  :              @default_only NoAction;
+    ##### : 248  :          }
+    ##### : 249  :          key = {
+    ##### : 250  :              standard_metadata.egress_port: exact;
+    ##### : 251  :          }
+    ##### : 252  :          size = 256;
+    ##### : 253  :          default_action = NoAction();
+    ##### : 254  :      }
+    ##### : 255  :      apply {
+    ##### : 256  :          send_frame.apply();
+    ##### : 257  :      }
+    ##### : 258  :  }
+    ##### : 259  :  
+    ##### : 260  :  control ingress(inout headers hdr, inout metadata meta, inout standard_metadata_t standard_metadata) {
+    ##### : 261  :      @name("set_dmac") action set_dmac(bit<48> dmac) {
+    ##### : 262  :          hdr.ethernet.dstAddr = dmac;
+    ##### : 263  :      }
+    ##### : 264  :      @name("_drop") action _drop() {
+    ##### : 265  :          mark_to_drop();
+    ##### : 266  :      }
+    ##### : 267  :      @name("set_nhop") action set_nhop(bit<32> nhop_ipv4, bit<9> port) {
+    ##### : 268  :          meta.routing_metadata.nhop_ipv4 = nhop_ipv4;
+    ##### : 269  :          standard_metadata.egress_spec = port;
+    ##### : 270  :          hdr.ipv4.ttl = hdr.ipv4.ttl + 8w255;
+    ##### : 271  :      }
+    ##### : 272  :      @name("forward") table forward() {
+    ##### : 273  :          actions = {
+    ##### : 274  :              set_dmac;
+    ##### : 275  :              _drop;
+    ##### : 276  :              @default_only NoAction;
+    ##### : 277  :          }
+    ##### : 278  :          key = {
+    ##### : 279  :              meta.routing_metadata.nhop_ipv4: exact;
+    ##### : 280  :          }
+    ##### : 281  :          size = 512;
+    ##### : 282  :          default_action = NoAction();
+    ##### : 283  :      }
+    ##### : 284  :      @name("ipv4_lpm") table ipv4_lpm() {
+    ##### : 285  :          actions = {
+    ##### : 286  :              set_nhop;
+    ##### : 287  :              _drop;
+    ##### : 288  :              @default_only NoAction;
+    ##### : 289  :          }
+    ##### : 290  :          key = {
+    ##### : 291  :              hdr.ipv4.dstAddr: lpm;
+    ##### : 292  :          }
+    ##### : 293  :          size = 1024;
+    ##### : 294  :          default_action = NoAction();
+    ##### : 295  :      }
+    ##### : 296  :      apply {
+    ##### : 297  :          ipv4_lpm.apply();
+    ##### : 298  :          forward.apply();
+    ##### : 299  :      }
+    ##### : 300  :  }
+    ##### : 301  :  
+    ##### : 302  :  control DeparserImpl(packet_out packet, in headers hdr) {
+    ##### : 303  :      apply {
+    ##### : 304  :          packet.emit(hdr.ethernet);
+    ##### : 305  :          packet.emit(hdr.ipv4);
+    ##### : 306  :      }
+    ##### : 307  :  }
+    ##### : 308  :  
+    ##### : 309  :  control verifyChecksum(in headers hdr, inout metadata meta) {
+    ##### : 310  :      Checksum16() ipv4_checksum;
+    ##### : 311  :      apply {
+    ##### : 312  :          if (hdr.ipv4.hdrChecksum == ipv4_checksum.get({ hdr.ipv4.version, hdr.ipv4.ihl, hdr.ipv4.diffserv, hdr.ipv4.totalLen, hdr.ipv4.identification, hdr.ipv4.flags, hdr.ipv4.fragOffset, hdr.ipv4.ttl, hdr.ipv4.protocol, hdr.ipv4.srcAddr, hdr.ipv4.dstAddr })) 
+    ##### : 313  :              mark_to_drop();
+    ##### : 314  :      }
+    ##### : 315  :  }
+    ##### : 316  :  
+    ##### : 317  :  control computeChecksum(inout headers hdr, inout metadata meta) {
+    ##### : 318  :      Checksum16() ipv4_checksum;
+    ##### : 319  :      apply {
+    ##### : 320  :          hdr.ipv4.hdrChecksum = ipv4_checksum.get({ hdr.ipv4.version, hdr.ipv4.ihl, hdr.ipv4.diffserv, hdr.ipv4.totalLen, hdr.ipv4.identification, hdr.ipv4.flags, hdr.ipv4.fragOffset, hdr.ipv4.ttl, hdr.ipv4.protocol, hdr.ipv4.srcAddr, hdr.ipv4.dstAddr });
+    ##### : 321  :      }
+    ##### : 322  :  }
+    ##### : 323  :  

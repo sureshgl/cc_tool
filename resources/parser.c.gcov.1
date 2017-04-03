@@ -1,0 +1,290 @@
+      -:    0:Source:/home/p4dev/p4/p4factory/targets/simple_router/build/bm/src/parser.c
+        -:    0:Graph:build/bm/obj/parser.gcno
+        -:    0:Data:build/bm/obj/parser.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include <string.h>
+        -:    2:#include <stdlib.h>
+        -:    3:#include <stdio.h>
+        -:    4:#include <assert.h>
+        -:    5:#include "enums.h"
+        -:    6:#include "parser.h"
+        -:    7:#include "phv.h"
+        -:    8:#include "rmt_internal.h"
+        -:    9:#include "value_set.h"
+        -:   10:#include "metadata_recirc.h"
+        -:   11:
+        -:   12:
+        -:   13:typedef void (*ExtractionFn)(phv_data_t *phv, uint8_t *hdr);
+        2:   14:void _extract_ethernet(uint8_t *dst, uint8_t *hdr) {
+        -:   15:    uint8_t *src;
+        2:   16:    src = hdr + 0; //pragma [187]
+        2:   17:    EXTRACT_UINT32(dst, src, 0, 48);//pragma [187]
+        2:   18:    dst += 6;//pragma [187]
+        2:   19:    src = hdr + 6; //pragma [188]
+        2:   20:    EXTRACT_UINT32(dst, src, 0, 48);//pragma [188]
+        2:   21:    dst += 6;//pragma [188]
+        2:   22:    src = hdr + 12; //pragma [189]
+        2:   23:    EXTRACT_UINT32(dst, src, 0, 16);//pragma [189]
+        2:   24:    dst += 4;//pragma [189]
+        -:   25:
+        2:   26:}
+        -:   27:
+    #####:   28:void _extract_ipv4(uint8_t *dst, uint8_t *hdr) {
+        -:   29:    uint8_t *src;
+    #####:   30:    src = hdr + 0; //pragma [193]
+    #####:   31:    EXTRACT_UINT32(dst, src, 0, 4);//pragma [193]
+    #####:   32:    dst += 4;//pragma [193]
+    #####:   33:    src = hdr + 0; //pragma [194]
+    #####:   34:    EXTRACT_UINT32(dst, src, 4, 4);//pragma [194]
+    #####:   35:    dst += 4;//pragma [194]
+    #####:   36:    src = hdr + 1; //pragma [195]
+    #####:   37:    EXTRACT_UINT32(dst, src, 0, 8);//pragma [195]
+    #####:   38:    dst += 4;//pragma [195]
+    #####:   39:    src = hdr + 2; //pragma [196]
+    #####:   40:    EXTRACT_UINT32(dst, src, 0, 16);//pragma [196]
+    #####:   41:    dst += 4;//pragma [196]
+    #####:   42:    src = hdr + 4; //pragma [197]
+    #####:   43:    EXTRACT_UINT32(dst, src, 0, 16);//pragma [197]
+    #####:   44:    dst += 4;//pragma [197]
+    #####:   45:    src = hdr + 6; //pragma [198]
+    #####:   46:    EXTRACT_UINT32(dst, src, 0, 3);//pragma [198]
+    #####:   47:    dst += 4;//pragma [198]
+    #####:   48:    src = hdr + 6; //pragma [199]
+    #####:   49:    EXTRACT_UINT32(dst, src, 3, 13);//pragma [199]
+    #####:   50:    dst += 4;//pragma [199]
+    #####:   51:    src = hdr + 8; //pragma [200]
+    #####:   52:    EXTRACT_UINT32(dst, src, 0, 8);//pragma [200]
+    #####:   53:    dst += 4;//pragma [200]
+    #####:   54:    src = hdr + 9; //pragma [201]
+    #####:   55:    EXTRACT_UINT32(dst, src, 0, 8);//pragma [201]
+    #####:   56:    dst += 4;//pragma [201]
+    #####:   57:    src = hdr + 10; //pragma [202]
+    #####:   58:    EXTRACT_UINT32(dst, src, 0, 16);//pragma [202]
+    #####:   59:    dst += 4;//pragma [202]
+    #####:   60:    src = hdr + 12; //pragma [203]
+    #####:   61:    EXTRACT_UINT32(dst, src, 0, 32);//pragma [203]
+    #####:   62:    dst += 4;//pragma [203]
+    #####:   63:    src = hdr + 16; //pragma [204]
+    #####:   64:    EXTRACT_UINT32(dst, src, 0, 32);//pragma [204]
+    #####:   65:    dst += 4;//pragma [204]
+        -:   66:
+    #####:   67:}
+        -:   68:
+        2:   69:void _extract_standard_metadata(uint8_t *dst, uint8_t *hdr) {
+        -:   70:    uint8_t *src;
+        2:   71:    src = hdr + 0; //pragma [66]
+        2:   72:    EXTRACT_UINT32(dst, src, 0, 9);//pragma [66]
+        2:   73:    dst += 4;//pragma [66]
+        2:   74:    src = hdr + 1; //pragma [67]
+        2:   75:    EXTRACT_UINT32(dst, src, 1, 32);//pragma [67]
+        2:   76:    dst += 4;//pragma [67]
+        2:   77:    src = hdr + 5; //pragma [68]
+        2:   78:    EXTRACT_UINT32(dst, src, 1, 9);//pragma [68]
+        2:   79:    dst += 4;//pragma [68]
+        2:   80:    src = hdr + 6; //pragma [69]
+        2:   81:    EXTRACT_UINT32(dst, src, 2, 9);//pragma [69]
+        2:   82:    dst += 4;//pragma [69]
+        2:   83:    src = hdr + 7; //pragma [70]
+        2:   84:    EXTRACT_UINT32(dst, src, 3, 32);//pragma [70]
+        2:   85:    dst += 4;//pragma [70]
+        2:   86:    src = hdr + 11; //pragma [71]
+        2:   87:    EXTRACT_UINT32(dst, src, 3, 32);//pragma [71]
+        2:   88:    dst += 4;//pragma [71]
+        2:   89:    src = hdr + 15; //pragma [72]
+        2:   90:    EXTRACT_UINT32(dst, src, 3, 32);//pragma [72]
+        2:   91:    dst += 4;//pragma [72]
+        2:   92:    src = hdr + 19; //pragma [73]
+        2:   93:    EXTRACT_UINT32(dst, src, 3, 5);//pragma [73]
+        2:   94:    dst += 4;//pragma [73]
+        -:   95:
+        2:   96:}
+        -:   97:
+        2:   98:void _extract_routing_metadata(uint8_t *dst, uint8_t *hdr) {
+        -:   99:    uint8_t *src;
+        2:  100:    src = hdr + 0; //pragma [183]
+        2:  101:    EXTRACT_UINT32(dst, src, 0, 32);//pragma [183]
+        2:  102:    dst += 4;//pragma [183]
+        -:  103:
+        2:  104:}
+        -:  105:
+        2:  106:static inline void extract_ethernet(phv_data_t *phv, uint8_t *hdr) {
+        2:  107:  uint8_t *phv_dst = get_phv_ptr(phv, 0); //pragma [186-190]
+        2:  108:  _extract_ethernet(phv_dst, hdr); //pragma [186-190]
+        2:  109:  phv_set_valid_header(phv, RMT_HEADER_INSTANCE_ethernet); //pragma [186-190]
+        2:  110:}
+    #####:  111:static inline void extract_ipv4(phv_data_t *phv, uint8_t *hdr) {
+    #####:  112:  uint8_t *phv_dst = get_phv_ptr(phv, 16); //pragma [192-205]
+    #####:  113:  _extract_ipv4(phv_dst, hdr); //pragma [192-205]
+    #####:  114:  phv_set_valid_header(phv, RMT_HEADER_INSTANCE_ipv4); //pragma [192-205]
+    #####:  115:}
+        1:  116:static inline void extract_standard_metadata(phv_data_t *phv, uint8_t *hdr) {
+        1:  117:  uint8_t *phv_dst = get_phv_ptr(phv, 64); //pragma [64-74]
+        1:  118:  _extract_standard_metadata(phv_dst, hdr); //pragma [64-74]
+        1:  119:  phv_set_valid_header(phv, RMT_HEADER_INSTANCE_standard_metadata); //pragma [64-74]
+        1:  120:}
+        1:  121:static inline void extract_routing_metadata(phv_data_t *phv, uint8_t *hdr) {
+        1:  122:  uint8_t *phv_dst = get_phv_ptr(phv, 96); //pragma [182-184]
+        1:  123:  _extract_routing_metadata(phv_dst, hdr); //pragma [182-184]
+        1:  124:  phv_set_valid_header(phv, RMT_HEADER_INSTANCE_routing_metadata); //pragma [182-184]
+        1:  125:}
+        -:  126:
+        1:  127:static uint8_t *parser_extract_metadata_full(phv_data_t *phv, uint8_t *pkt) { 
+        1:  128:   RMT_LOG(P4_LOG_LEVEL_TRACE, "extracting all metadata for %p\n", pkt);
+        1:  129:   extract_standard_metadata(phv, pkt); //pragma [64-74]
+        1:  130:   pkt += 20; //pragma [64-74]
+        1:  131:   extract_routing_metadata(phv, pkt); //pragma [182-184]
+        1:  132:   pkt += 4; //pragma [182-184]
+        -:  133:
+        1:  134:   return pkt;
+        -:  135:
+        -:  136:}
+        1:  137:static uint8_t *parser_extract_metadata(phv_data_t *phv, uint8_t *pkt,
+        -:  138:                int *metadata_recirc) {
+        1:  139:   RMT_LOG(P4_LOG_LEVEL_TRACE, "extracting metadata\n");
+        1:  140:   if(!metadata_recirc) return parser_extract_metadata_full(phv, pkt);
+    #####:  141:   metadata_recirc_set_t *metadata_set = metadata_recirc_init(metadata_recirc);
+        -:  142:   uint8_t *src;
+        -:  143:   uint8_t *dst;
+    #####:  144:   if(metadata_recirc_is_valid(metadata_set, RMT_FIELD_INSTANCE_standard_metadata_ingress_port)) { //pragma [66]
+    #####:  145:      RMT_LOG(P4_LOG_LEVEL_TRACE, "parser_extract_metadata: extracting metadata field standard_metadata_ingress_port\n"); //pragma [66]
+    #####:  146:       src = pkt + 0; //pragma  [66]
+    #####:  147:       dst = get_phv_ptr(phv, 64); //pragma  [66]
+    #####:  148:       EXTRACT_UINT32(dst, src, 0, 9); //pragma  [66]
+        -:  149:   }
+    #####:  150:   if(metadata_recirc_is_valid(metadata_set, RMT_FIELD_INSTANCE_standard_metadata_packet_length)) { //pragma [67]
+    #####:  151:      RMT_LOG(P4_LOG_LEVEL_TRACE, "parser_extract_metadata: extracting metadata field standard_metadata_packet_length\n"); //pragma [67]
+    #####:  152:       src = pkt + 1; //pragma  [67]
+    #####:  153:       dst = get_phv_ptr(phv, 68); //pragma  [67]
+    #####:  154:       EXTRACT_UINT32(dst, src, 1, 32); //pragma  [67]
+        -:  155:   }
+    #####:  156:   if(metadata_recirc_is_valid(metadata_set, RMT_FIELD_INSTANCE_standard_metadata_egress_spec)) { //pragma [68]
+    #####:  157:      RMT_LOG(P4_LOG_LEVEL_TRACE, "parser_extract_metadata: extracting metadata field standard_metadata_egress_spec\n"); //pragma [68]
+    #####:  158:       src = pkt + 5; //pragma  [68]
+    #####:  159:       dst = get_phv_ptr(phv, 72); //pragma  [68]
+    #####:  160:       EXTRACT_UINT32(dst, src, 1, 9); //pragma  [68]
+        -:  161:   }
+    #####:  162:   if(metadata_recirc_is_valid(metadata_set, RMT_FIELD_INSTANCE_standard_metadata_egress_port)) { //pragma [69]
+    #####:  163:      RMT_LOG(P4_LOG_LEVEL_TRACE, "parser_extract_metadata: extracting metadata field standard_metadata_egress_port\n"); //pragma [69]
+    #####:  164:       src = pkt + 6; //pragma  [69]
+    #####:  165:       dst = get_phv_ptr(phv, 76); //pragma  [69]
+    #####:  166:       EXTRACT_UINT32(dst, src, 2, 9); //pragma  [69]
+        -:  167:   }
+    #####:  168:   if(metadata_recirc_is_valid(metadata_set, RMT_FIELD_INSTANCE_standard_metadata_egress_instance)) { //pragma [70]
+    #####:  169:      RMT_LOG(P4_LOG_LEVEL_TRACE, "parser_extract_metadata: extracting metadata field standard_metadata_egress_instance\n"); //pragma [70]
+    #####:  170:       src = pkt + 7; //pragma  [70]
+    #####:  171:       dst = get_phv_ptr(phv, 80); //pragma  [70]
+    #####:  172:       EXTRACT_UINT32(dst, src, 3, 32); //pragma  [70]
+        -:  173:   }
+    #####:  174:   if(metadata_recirc_is_valid(metadata_set, RMT_FIELD_INSTANCE_standard_metadata_instance_type)) { //pragma [71]
+    #####:  175:      RMT_LOG(P4_LOG_LEVEL_TRACE, "parser_extract_metadata: extracting metadata field standard_metadata_instance_type\n"); //pragma [71]
+    #####:  176:       src = pkt + 11; //pragma  [71]
+    #####:  177:       dst = get_phv_ptr(phv, 84); //pragma  [71]
+    #####:  178:       EXTRACT_UINT32(dst, src, 3, 32); //pragma  [71]
+        -:  179:   }
+    #####:  180:   if(metadata_recirc_is_valid(metadata_set, RMT_FIELD_INSTANCE_standard_metadata_clone_spec)) { //pragma [72]
+    #####:  181:      RMT_LOG(P4_LOG_LEVEL_TRACE, "parser_extract_metadata: extracting metadata field standard_metadata_clone_spec\n"); //pragma [72]
+    #####:  182:       src = pkt + 15; //pragma  [72]
+    #####:  183:       dst = get_phv_ptr(phv, 88); //pragma  [72]
+    #####:  184:       EXTRACT_UINT32(dst, src, 3, 32); //pragma  [72]
+        -:  185:   }
+    #####:  186:   if(metadata_recirc_is_valid(metadata_set, RMT_FIELD_INSTANCE_standard_metadata__padding)) { //pragma [73]
+    #####:  187:      RMT_LOG(P4_LOG_LEVEL_TRACE, "parser_extract_metadata: extracting metadata field standard_metadata__padding\n"); //pragma [73]
+    #####:  188:       src = pkt + 19; //pragma  [73]
+    #####:  189:       dst = get_phv_ptr(phv, 92); //pragma  [73]
+    #####:  190:       EXTRACT_UINT32(dst, src, 3, 5); //pragma  [73]
+        -:  191:   }
+        -:  192:
+    #####:  193:   pkt += 20;
+    #####:  194:   if(metadata_recirc_is_valid(metadata_set, RMT_FIELD_INSTANCE_routing_metadata_nhop_ipv4)) { //pragma [183]
+    #####:  195:      RMT_LOG(P4_LOG_LEVEL_TRACE, "parser_extract_metadata: extracting metadata field routing_metadata_nhop_ipv4\n"); //pragma [183]
+    #####:  196:       src = pkt + 0; //pragma  [183]
+    #####:  197:       dst = get_phv_ptr(phv, 96); //pragma  [183]
+    #####:  198:       EXTRACT_UINT32(dst, src, 0, 32); //pragma  [183]
+        -:  199:   }
+        -:  200:
+    #####:  201:   pkt += 4;
+        -:  202:
+    #####:  203:   free(metadata_set);
+    #####:  204:   return pkt;
+        -:  205:}
+        -:  206:   
+        2:  207:static inline void build_key_parse_ethernet(phv_data_t *phv,
+        -:  208:                  uint8_t *pkt, uint8_t *key) {
+        -:  209:  int byte_offset_phv; //pragma [220-226]
+        -:  210:  uint8_t *pkt_ptr; //pragma [220-226]
+        -:  211:
+        -:  212:  (void)byte_offset_phv;  /* Compiler reference */ //pragma [220-226]
+        -:  213:  (void)pkt_ptr;  /* Compiler reference */ //pragma [220-226]
+        2:  214:  byte_offset_phv = rmt_field_byte_offset_phv(PHV_GET_FIELD(phv, RMT_FIELD_INSTANCE_ethernet_etherType)); //pragma [220-226]
+        2:  215:  *(uint32_t *) key = phv_buf_field_uint32_get(phv, byte_offset_phv); //pragma [220-226]
+        2:  216:  key += sizeof(uint32_t); //pragma [220-226]
+        2:  217:}
+        -:  218:
+        2:  219:ApplyTableFn parse_state_parse_ethernet(phv_data_t *phv, uint8_t *pkt) { 
+        2:  220:  RMT_LOG(P4_LOG_LEVEL_TRACE, "parsing parse_ethernet\n");
+        -:  221:
+        -:  222:  uint8_t *phv_dst;
+        -:  223:  uint8_t *phv_src;
+        -:  224:
+        -:  225:  (void)phv_src;  /* Compiler reference */
+        -:  226:  (void)phv_dst;  /* Compiler reference */
+        -:  227:
+        2:  228:  extract_ethernet(phv, pkt); //pragma [221]
+        2:  229:  pkt += 14; //pragma [221]
+        2:  230:  phv->payload = pkt; //pragma [221]
+        -:  231:  uint8_t key[4]; //pragma [222-225]
+        2:  232:  build_key_parse_ethernet(phv, pkt, key); //pragma [222-225]
+        2:  233:  uint8_t *mask_value_0 = NULL; //pragma [223]
+        2:  234:  uint8_t case_value_0[4] = { 0 ,0 ,8 , 0 }; //pragma [223]
+        2:  235:  if (cmp_values(key, case_value_0, 4, mask_value_0)) { //pragma [223]
+    #####:  236:      return parse_state_parse_ipv4(phv, pkt); //pragma [223]
+        -:  237:  }
+        2:  238:  return tables_apply_ipv4_lpm; //pragma [224]
+        -:  239:
+        -:  240:}
+        -:  241:
+    #####:  242:ApplyTableFn parse_state_parse_ipv4(phv_data_t *phv, uint8_t *pkt) { 
+    #####:  243:  RMT_LOG(P4_LOG_LEVEL_TRACE, "parsing parse_ipv4\n");
+        -:  244:
+        -:  245:  uint8_t *phv_dst;
+        -:  246:  uint8_t *phv_src;
+        -:  247:
+        -:  248:  (void)phv_src;  /* Compiler reference */
+        -:  249:  (void)phv_dst;  /* Compiler reference */
+        -:  250:
+    #####:  251:  extract_ipv4(phv, pkt); //pragma [228]
+    #####:  252:  pkt += 20; //pragma [228]
+    #####:  253:  phv->payload = pkt; //pragma [228]
+    #####:  254:  return tables_apply_ipv4_lpm; //pragma [229]
+        -:  255:
+        -:  256:}
+        -:  257:
+        2:  258:ApplyTableFn parse_state_start(phv_data_t *phv, uint8_t *pkt) { 
+        2:  259:  RMT_LOG(P4_LOG_LEVEL_TRACE, "parsing start\n");
+        -:  260:
+        -:  261:  uint8_t *phv_dst;
+        -:  262:  uint8_t *phv_src;
+        -:  263:
+        -:  264:  (void)phv_src;  /* Compiler reference */
+        -:  265:  (void)phv_dst;  /* Compiler reference */
+        -:  266:
+        2:  267:  return parse_state_parse_ethernet(phv, pkt); //pragma [232]
+        -:  268:
+        -:  269:}
+        -:  270:
+        2:  271:ApplyTableFn parser_parse_pkt(phv_data_t *phv,
+        -:  272:               uint8_t *pkt, int len,
+        -:  273:               ParseStateFn start){
+        2:  274:  phv->payload = pkt;
+        2:  275:  ApplyTableFn apply_table_fn = start(phv, pkt);
+        2:  276:  phv->payload_len = len - (phv->payload - pkt);
+        2:  277:  RMT_LOG(P4_LOG_LEVEL_VERBOSE, "payload length: %d\n", phv->payload_len);
+        2:  278:  return apply_table_fn;
+        -:  279:}
+        -:  280:
+        1:  281:void parser_parse_metadata(phv_data_t *phv,
+        -:  282:            uint8_t *metadata, int *metadata_recirc) {
+        1:  283:  parser_extract_metadata(phv, metadata, metadata_recirc);
+        1:  284:}
+        -:  285:

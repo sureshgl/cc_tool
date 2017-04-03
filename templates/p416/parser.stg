@@ -1,0 +1,150 @@
+Top(stmts)::=<<
+<typeDef()>
+<stmts :{ item |<item><\n>}>
+>>
+
+typeDef()::=<<
+#include \<string.h>
+#include \<stdlib.h>
+#include \<stdio.h>
+#include \<assert.h>
+#include "enums.h"
+#include "parser.h"
+#include "phv.h"
+#include "rmt_internal.h"
+#include "value_set.h"
+#include "metadata_recirc.h"
+
+
+typedef void (*ExtractionFn)(phv_data_t *phv, uint8_t *hdr);
+>>
+
+
+extractHeader1(header_instance,lineno,fields)::=<<
+void _extract_<header_instance>(uint8_t *dst, uint8_t *hdr) {//pragma [<lineno>]
+	 uint8_t *src;//pragma [<lineno>]
+	 <fields :{ field|src = hdr + <field.byte_offset_hdr>; //pragma [<field.lineno>]
+EXTRACT_UINT32(dst, src, <field.bit_offset_hdr>, <field.width>);//pragma [<field.lineno>]
+dst += <field.byte_width_phv>;//pragma [<field.lineno>]<\n>}>
+}<\n>
+>>
+	 
+extractHeader2(headers)::=<<
+<headers :{ header |static inline void extract_<header.header_instance_t>(phv_data_t *phv, uint8_t *hdr) { //pragma [<header.lineno>]
+  uint8_t *phv_dst = get_phv_ptr(phv, <header.byte_offset_phv>); //pragma [<header.lineno>]
+  _extract_<header.header_instance_t>(phv_dst, hdr); //pragma [<header.lineno>]
+  phv_set_valid_header(phv, RMT_HEADER_INSTANCE_<header.header_instance_t>); //pragma [<header.lineno>]
+\}<\n>}>
+>>
+
+buildKey_(statename,field_instance,lineno)::=<<
+static inline void build_key_<statename>(phv_data_t *phv,
+                  uint8_t *pkt, uint8_t *key) { //pragma [<lineno>]
+  int byte_offset_phv; //pragma [<lineno>]
+  uint8_t *pkt_ptr; //pragma [<lineno>]
+
+  (void)byte_offset_phv;  /* Compiler reference */ //pragma [<lineno>]
+  (void)pkt_ptr;  /* Compiler reference */ //pragma [<lineno>]
+  byte_offset_phv = rmt_field_byte_offset_phv(PHV_GET_FIELD(phv, RMT_FIELD_INSTANCE_<field_instance>)); //pragma [<lineno>]
+  *(uint32_t *) key = phv_buf_field_uint32_get(phv, byte_offset_phv); //pragma [<lineno>]
+  key += sizeof(uint32_t); //pragma [<lineno>]
+}
+
+>>
+
+parse_state_(statename,stmts,lineno)::=<<
+ApplyTableFn parse_state_<statename>(phv_data_t *phv, uint8_t *pkt) { //pragma [<lineno>]
+  RMT_LOG(P4_LOG_LEVEL_TRACE, "parsing <statename>\n");
+
+  uint8_t *phv_dst; //pragma [<lineno>]
+  uint8_t *phv_src; //pragma [<lineno>]
+
+  (void)phv_src;  /* Compiler reference */ //pragma [<lineno>]
+  (void)phv_dst;  /* Compiler reference */ //pragma [<lineno>]
+  
+  <stmts :{ item |<item><\n>}>
+}
+
+>>
+
+extractLines(headerinstance_name,bytes,lineno)::=<<
+extract_<headerinstance_name>(phv, pkt); //pragma [<lineno>]
+pkt += <bytes>; //pragma [<lineno>]
+phv->payload = pkt; //pragma [<lineno>]
+>>
+
+returnNextState(name,lineno)::=<<
+return parse_state_<name>(phv, pkt); //pragma [<lineno>]
+>>
+
+returnAccept(name,lineno)::=<<
+return tables_apply_<name>; //pragma [<lineno>]
+>>
+
+transition_begin(state_name,width,lineno)::=<<
+uint8_t key[<width>]; //pragma [<lineno>]
+build_key_<state_name>(phv, pkt, key); //pragma [<lineno>]
+>> 
+
+transition(i,size,values,next,lineno)::=<<
+uint8_t *mask_value_<i> = NULL; //pragma [<lineno>]
+uint8_t case_value_<i>[<size>] = { <trunc(values) :{ value |<value> ,}> <last(values) :{value|<value>}> }; //pragma [<lineno>]
+if (cmp_values(key, case_value_<i>, <size>, mask_value_<i>)) { //pragma [<lineno>]
+    return parse_state_<next>(phv, pkt); //pragma [<lineno>]
+}
+>>
+
+parser_extract_metadata_full(headers)::=<<
+static uint8_t *parser_extract_metadata_full(phv_data_t *phv, uint8_t *pkt) { 
+	RMT_LOG(P4_LOG_LEVEL_TRACE, "extracting all metadata for %p\n", pkt);
+	<headers :{ header |extract_<header.header_instance_t>(phv, pkt); //pragma [<header.lineno>]
+pkt += <header.bitsInBytes>; //pragma [<header.lineno>]<\n>}>
+	return pkt;<\n>
+}
+>>
+
+lines_forFields_parser_extract_metadata(name,field)::=<<
+if(metadata_recirc_is_valid(metadata_set, RMT_FIELD_INSTANCE_<name>)) { //pragma [<field.lineno>]
+	RMT_LOG(P4_LOG_LEVEL_TRACE, "parser_extract_metadata: extracting metadata field <name>\n"); //pragma [<field.lineno>]
+	 src = pkt + <field.byte_offset_hdr>; //pragma  [<field.lineno>]
+	 dst = get_phv_ptr(phv, <field.byte_offset_phv>); //pragma  [<field.lineno>]
+	 EXTRACT_UINT32(dst, src, <field.bit_offset_hdr>, <field.width>); //pragma  [<field.lineno>]
+}
+>>
+
+lines_ForHeaders_parser_extract_metadata(stmts,bitsInBytes)::=<<
+<stmts :{ item |<item><\n>}>
+pkt += <bitsInBytes>;
+>>
+
+parser_extract_metadata(stmts)::=<<
+static uint8_t *parser_extract_metadata(phv_data_t *phv, uint8_t *pkt,
+                int *metadata_recirc) {
+	RMT_LOG(P4_LOG_LEVEL_TRACE, "extracting metadata\n");
+	if(!metadata_recirc) return parser_extract_metadata_full(phv, pkt);
+	metadata_recirc_set_t *metadata_set = metadata_recirc_init(metadata_recirc);
+	uint8_t *src;
+	uint8_t *dst;
+	<stmts :{ item |<item><\n>}>
+	free(metadata_set);
+	return pkt;
+}
+	
+>>
+
+final()::=<<
+ApplyTableFn parser_parse_pkt(phv_data_t *phv,
+               uint8_t *pkt, int len,
+               ParseStateFn start){
+  phv->payload = pkt;
+  ApplyTableFn apply_table_fn = start(phv, pkt);
+  phv->payload_len = len - (phv->payload - pkt);
+  RMT_LOG(P4_LOG_LEVEL_VERBOSE, "payload length: %d\n", phv->payload_len);
+  return apply_table_fn;
+}
+
+void parser_parse_metadata(phv_data_t *phv,
+            uint8_t *metadata, int *metadata_recirc) {
+  parser_extract_metadata(phv, metadata, metadata_recirc);
+}
+>>
